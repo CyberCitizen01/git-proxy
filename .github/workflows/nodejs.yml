@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
         mongodb-version: [4.4]
 
     permissions:
@@ -45,11 +45,16 @@ jobs:
       run: |
         npm run test-coverage-ci || echo "Silently ignoring coverage threshold limit..."
 
-    - name: Comment test coverage report on PR
-      uses: romeovs/lcov-reporter-action@v0.2.16
+    - name: Install LCOV
+      run: |
+        sudo apt-get update && sudo apt-get install --assume-yes lcov
+
+    - name: Report code coverage
+      uses: zgosalvez/github-actions-report-lcov@v3
       with:
-        lcov-file: ./coverage/lcov.info
+        coverage-files: ./coverage/lcov.info
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        update-comment: true
 
     # - name: Exit if coverage condition not met
     #   if: ${{ steps.test.outputs.exit_code }} != 0
